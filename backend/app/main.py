@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
-from app.api import learning_items, review_tasks
+from app.api import sources, learning_items, review_tasks
 
 # データベーステーブルを作成
 Base.metadata.create_all(bind=engine)
@@ -23,6 +23,7 @@ app.add_middleware(
 )
 
 # ルーターを登録
+app.include_router(sources.router, prefix="/api")
 app.include_router(learning_items.router, prefix="/api")
 app.include_router(review_tasks.router, prefix="/api")
 

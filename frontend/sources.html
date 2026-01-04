@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Active Recall Scheduler - ダッシュボード</title>
+    <title>媒体一覧 - Active Recall Scheduler</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -13,8 +13,8 @@
             <div class="flex items-center justify-between">
                 <h1 class="text-2xl font-bold text-gray-900">Active Recall Scheduler</h1>
                 <nav class="space-x-4">
-                    <a href="index.html" class="text-blue-600 font-semibold">ダッシュボード</a>
-                    <a href="sources.html" class="text-gray-600 hover:text-gray-900">媒体一覧</a>
+                    <a href="index.html" class="text-gray-600 hover:text-gray-900">ダッシュボード</a>
+                    <a href="sources.html" class="text-blue-600 font-semibold">媒体一覧</a>
                     <a href="items.html" class="text-gray-600 hover:text-gray-900">学習項目一覧</a>
                 </nav>
             </div>
@@ -23,55 +23,42 @@
 
     <!-- メインコンテンツ -->
     <main class="container mx-auto px-4 py-8">
-        <!-- 統計情報 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow p-6">
-                <h2 class="text-lg font-semibold text-gray-700 mb-2">今日の復習</h2>
-                <p class="text-4xl font-bold text-blue-600"><span id="review-count">0</span> 件</p>
-            </div>
-            <div class="bg-white rounded-lg shadow p-6 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow">
+            <!-- ヘッダー -->
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900">媒体一覧</h2>
+                    <p class="text-sm text-gray-600 mt-1">
+                        全 <span id="sources-count">0</span> 件
+                    </p>
+                </div>
                 <button
                     id="open-modal-btn"
-                    class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition-colors"
+                    class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
                 >
-                    + 新しい学習項目を追加
+                    + 新規追加
                 </button>
             </div>
-        </div>
 
-        <!-- 今日の復習タスク -->
-        <div class="bg-white rounded-lg shadow">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-xl font-bold text-gray-900">今日の復習タスク</h2>
-            </div>
-            <div id="today-reviews" class="p-6 space-y-4">
-                <div class="text-center text-gray-500 py-8">読み込み中...</div>
+            <!-- グリッド表示 -->
+            <div id="sources-container" class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="col-span-full text-center text-gray-500 py-8">読み込み中...</div>
             </div>
         </div>
     </main>
 
-    <!-- 新規学習項目追加モーダル -->
-    <div id="new-item-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <!-- 新規媒体追加モーダル -->
+    <div id="new-source-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 class="text-xl font-bold text-gray-900">新しい学習項目を追加</h3>
+                <h3 class="text-xl font-bold text-gray-900">新しい媒体を追加</h3>
                 <button id="close-modal-btn" class="text-gray-500 hover:text-gray-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
-            <form id="new-item-form" class="p-6">
-                <div class="mb-4">
-                    <label for="source_id" class="block text-sm font-medium text-gray-700 mb-2">媒体 *</label>
-                    <select
-                        id="source_id"
-                        required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        <option value="">読み込み中...</option>
-                    </select>
-                </div>
+            <form id="new-source-form" class="p-6">
                 <div class="mb-4">
                     <label for="title" class="block text-sm font-medium text-gray-700 mb-2">タイトル *</label>
                     <input
@@ -79,31 +66,35 @@
                         id="title"
                         required
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="例: 二分探索アルゴリズム"
+                        placeholder="例: プログラミングTypeScript"
                     >
                 </div>
                 <div class="mb-4">
-                    <label for="content" class="block text-sm font-medium text-gray-700 mb-2">内容</label>
-                    <textarea
-                        id="content"
-                        rows="4"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="学習内容のメモ（オプション）"
-                    ></textarea>
-                </div>
-                <div class="mb-6">
-                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">学習開始日</label>
-                    <input
-                        type="date"
-                        id="start_date"
+                    <label for="category" class="block text-sm font-medium text-gray-700 mb-2">種類・カテゴリ</label>
+                    <select
+                        id="category"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                    <p class="text-xs text-gray-500 mt-1">空欄の場合は今日が設定されます</p>
+                        <option value="">選択してください（オプション）</option>
+                        <option value="書籍">書籍</option>
+                        <option value="動画">動画</option>
+                        <option value="記事">記事</option>
+                        <option value="講義">講義</option>
+                        <option value="その他">その他</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">説明</label>
+                    <textarea
+                        id="description"
+                        rows="3"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="媒体に関する説明（オプション）"
+                    ></textarea>
                 </div>
                 <div class="flex justify-end space-x-3">
                     <button
                         type="button"
-                        id="cancel-btn"
                         class="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
                         onclick="document.getElementById('close-modal-btn').click()"
                     >
@@ -126,6 +117,6 @@
     <!-- JavaScript -->
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
-    <script src="js/dashboard.js"></script>
+    <script src="js/sources.js"></script>
 </body>
 </html>
