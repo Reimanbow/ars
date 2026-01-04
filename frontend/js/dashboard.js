@@ -3,6 +3,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     loadTodayReviews();
     setupNewItemForm();
+    setupRecallEditor();
+
+    // URLハッシュが #recall の場合はエディタを開く
+    if (window.location.hash === '#recall') {
+        openRecallEditor();
+        // ハッシュをクリア
+        history.replaceState(null, '', window.location.pathname);
+    }
 });
 
 /**
@@ -75,6 +83,57 @@ async function completeTask(taskId) {
         console.error('Failed to complete task:', error);
         showNotification('エラー: ' + error.message, 'error');
     }
+}
+
+/**
+ * アクティブリコールエディタを開く（練習モード専用）
+ */
+function openRecallEditor() {
+    const modal = document.getElementById('recall-editor-modal');
+    const textarea = document.getElementById('recall-textarea');
+
+    // テキストエリアをクリア
+    textarea.value = '';
+
+    // モーダルを表示してテキストエリアにフォーカス
+    modal.classList.remove('hidden');
+    setTimeout(() => textarea.focus(), 100);
+}
+
+/**
+ * アクティブリコールエディタのセットアップ（練習モード専用）
+ */
+function setupRecallEditor() {
+    const modal = document.getElementById('recall-editor-modal');
+    const textarea = document.getElementById('recall-textarea');
+    const closeBtn = document.getElementById('close-recall-editor-btn');
+    const cancelBtn = document.getElementById('cancel-recall-btn');
+    const completeBtn = document.getElementById('complete-recall-btn');
+    const navBtn = document.getElementById('open-recall-editor-nav-btn');
+
+    // ナビゲーションボタンから開く
+    navBtn.addEventListener('click', () => {
+        openRecallEditor();
+    });
+
+    // 閉じるボタン
+    closeBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        textarea.value = '';
+    });
+
+    // キャンセルボタン
+    cancelBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        textarea.value = '';
+    });
+
+    // 完了ボタン（練習モードなので単にモーダルを閉じる）
+    completeBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        textarea.value = '';
+        showNotification('アクティブリコールを終了しました', 'success');
+    });
 }
 
 /**

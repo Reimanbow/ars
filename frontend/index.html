@@ -16,6 +16,9 @@
                     <a href="index.html" class="text-blue-600 font-semibold">ダッシュボード</a>
                     <a href="sources.html" class="text-gray-600 hover:text-gray-900">媒体一覧</a>
                     <a href="items.html" class="text-gray-600 hover:text-gray-900">学習項目一覧</a>
+                    <button id="open-recall-editor-nav-btn" class="text-gray-600 hover:text-gray-900 font-medium">
+                        アクティブリコール
+                    </button>
                 </nav>
             </div>
         </div>
@@ -117,6 +120,49 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- アクティブリコール エディタモーダル -->
+    <div id="recall-editor-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl h-[90vh] flex flex-col">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900">アクティブリコール</h3>
+                    <p class="text-sm text-gray-600 mt-1">思い出せることを自由に書き出してください</p>
+                </div>
+                <button id="close-recall-editor-btn" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="flex-1 p-6 overflow-hidden flex flex-col">
+                <textarea
+                    id="recall-textarea"
+                    class="w-full h-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none font-mono text-base"
+                    placeholder="ここに思い出した内容を書き出してください...&#10;&#10;このテキストは保存されず、完了後に破棄されます。&#10;自由に書き出して、記憶を確認しましょう。"
+                ></textarea>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-between items-center flex-shrink-0">
+                <p class="text-sm text-gray-500">
+                    💡 ヒント: 書き終えたら「完了」ボタンを押してください。内容は保存されません。
+                </p>
+                <div class="flex space-x-3">
+                    <button
+                        id="cancel-recall-btn"
+                        class="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+                    >
+                        キャンセル
+                    </button>
+                    <button
+                        id="complete-recall-btn"
+                        class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-semibold"
+                    >
+                        完了
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
