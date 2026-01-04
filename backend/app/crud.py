@@ -6,6 +6,123 @@ from app.scheduler import generate_review_tasks, generate_next_yearly_task
 
 
 # ============================================================================
+# Source CRUD Operations
+# ============================================================================
+
+def create_source(db: Session, source: schemas.SourceCreate) -> models.Source:
+    """
+    新規媒体を作成する
+
+    Args:
+        db: データベースセッション
+        source: 媒体作成スキーマ
+
+    Returns:
+        作成された媒体
+    """
+    db_source = models.Source(
+        title=source.title,
+        category=source.category,
+        description=source.description
+    )
+    db.add(db_source)
+    db.commit()
+    db.refresh(db_source)
+    return db_source
+
+
+def get_sources(
+    db: Session,
+    skip: int = 0,
+    limit: int = 100
+) -> tuple[List[models.Source], int]:
+    """
+    媒体の一覧を取得する
+
+    Args:
+        db: データベースセッション
+        skip: スキップする件数
+        limit: 取得する最大件数
+
+    Returns:
+        (媒体のリスト, 総件数) のタプル
+    """
+    total = db.query(models.Source).count()
+    sources = db.query(models.Source)\
+        .order_by(models.Source.created_at.desc())\
+        .offset(skip)\
+        .limit(limit)\
+        .all()
+    return sources, total
+
+
+def get_source(db: Session, source_id: int) -> Optional[models.Source]:
+    """
+    媒体の詳細を取得する（学習項目含む）
+
+    Args:
+        db: データベースセッション
+        source_id: 媒体ID
+
+    Returns:
+        媒体（見つからない場合はNone）
+    """
+    return db.query(models.Source)\
+        .options(joinedload(models.Source.learning_items))\
+        .filter(models.Source.id == source_id)\
+        .first()
+
+
+def update_source(
+    db: Session,
+    source_id: int,
+    source_update: schemas.SourceUpdate
+) -> Optional[models.Source]:
+    """
+    媒体を更新する
+
+    Args:
+        db: データベースセッション
+        source_id: 媒体ID
+        source_update: 更新内容
+
+    Returns:
+        更新された媒体（見つからない場合はNone）
+    """
+    db_source = db.query(models.Source).filter(models.Source.id == source_id).first()
+    if not db_source:
+        return None
+
+    update_data = source_update.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_source, key, value)
+
+    db.commit()
+    db.refresh(db_source)
+    return db_source
+
+
+def delete_source(db: Session, source_id: int) -> bool:
+    """
+    媒体を削除する（学習項目・復習タスクもカスケード削除される）
+
+    Args:
+        db: データベースセッション
+        source_id: 媒体ID
+
+    Returns:
+        削除成功ならTrue、見つからない場合はFalse
+    """
+    db_source = db.query(models.Source).filter(models.Source.id == source_id).first()
+    if not db_source:
+        return False
+
+    db.delete(db_source)
+    db.commit()
+    return True
+
+
+# ============================================================================
 # Learning Item CRUD Operations
 # ============================================================================
 
@@ -25,6 +142,7 @@ def create_learning_item(
     """
     # 学習項目を作成
     db_item = models.LearningItem(
+        source_id=item.source_id,
         title=item.title,
         content=item.content
     )

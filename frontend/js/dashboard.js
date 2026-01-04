@@ -86,7 +86,8 @@ function setupNewItemForm() {
     const openBtn = document.getElementById('open-modal-btn');
     const closeBtn = document.getElementById('close-modal-btn');
 
-    openBtn.addEventListener('click', () => {
+    openBtn.addEventListener('click', async () => {
+        await loadSourcesDropdown();
         modal.classList.remove('hidden');
     });
 
@@ -98,15 +99,20 @@ function setupNewItemForm() {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        const sourceId = parseInt(document.getElementById('source_id').value);
         const title = document.getElementById('title').value;
         const content = document.getElementById('content').value;
         const startDate = document.getElementById('start_date').value;
 
+        if (!sourceId) {
+            showNotification('媒体を選択してください', 'error');
+            return;
+        }
+
         try {
-            const data = { title, content };
-            if (startDate) {
-                data.start_date = startDate;
-            }
+            const data = { source_id: sourceId, title };
+            if (content) data.content = content;
+            if (startDate) data.start_date = startDate;
 
             await api.createLearningItem(data);
             showNotification('学習項目を作成しました！', 'success');
@@ -118,6 +124,36 @@ function setupNewItemForm() {
             showNotification('エラー: ' + error.message, 'error');
         }
     });
+}
+
+/**
+ * 媒体選択ドロップダウンを読み込む
+ */
+async function loadSourcesDropdown() {
+    const select = document.getElementById('source_id');
+
+    try {
+        const data = await api.getSources();
+        const sources = data.items;
+
+        if (sources.length === 0) {
+            select.innerHTML = '<option value="">媒体がありません - まず媒体を作成してください</option>';
+            select.disabled = true;
+            return;
+        }
+
+        select.disabled = false;
+        select.innerHTML = '<option value="">媒体を選択してください *</option>' +
+            sources.map(source => `
+                <option value="${source.id}">
+                    ${escapeHtml(source.title)}${source.category ? ` (${escapeHtml(source.category)})` : ''}
+                </option>
+            `).join('');
+    } catch (error) {
+        console.error('Failed to load sources:', error);
+        select.innerHTML = '<option value="">エラー: 媒体を読み込めませんでした</option>';
+        select.disabled = true;
+    }
 }
 
 /**
@@ -158,4 +194,13 @@ function isPastDue(dateStr) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return dueDate < today;
+}
+
+/**
+ * HTMLエスケープ
+ */
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }

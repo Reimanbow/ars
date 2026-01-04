@@ -2,6 +2,80 @@
 
 const api = {
     // ============================================================================
+    // 媒体API
+    // ============================================================================
+
+    /**
+     * 新規媒体を作成
+     */
+    async createSource(data) {
+        const response = await fetch(`${API_BASE_URL}/sources/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to create source');
+        }
+        return response.json();
+    },
+
+    /**
+     * 媒体の一覧を取得
+     */
+    async getSources(limit = 100, offset = 0) {
+        const response = await fetch(
+            `${API_BASE_URL}/sources/?limit=${limit}&skip=${offset}`
+        );
+        if (!response.ok) {
+            throw new Error('Failed to fetch sources');
+        }
+        return response.json();
+    },
+
+    /**
+     * 媒体の詳細を取得
+     */
+    async getSource(id) {
+        const response = await fetch(`${API_BASE_URL}/sources/${id}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch source');
+        }
+        return response.json();
+    },
+
+    /**
+     * 媒体を更新
+     */
+    async updateSource(id, data) {
+        const response = await fetch(`${API_BASE_URL}/sources/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to update source');
+        }
+        return response.json();
+    },
+
+    /**
+     * 媒体を削除
+     */
+    async deleteSource(id) {
+        const response = await fetch(`${API_BASE_URL}/sources/${id}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to delete source');
+        }
+        return true;
+    },
+
+    // ============================================================================
     // 学習項目API
     // ============================================================================
 
